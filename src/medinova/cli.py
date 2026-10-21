@@ -63,7 +63,11 @@ def cmd_label(cfg, args):
 
     p = _paths(cfg)
     manifest = pd.read_csv(p["interim_dir"] / "manifest.csv", dtype={"study_id": str})
-    if args.csv:
+    if args.chexbert:
+        from .data.chexbert import CheXbertLabeler
+
+        labels = CheXbertLabeler(args.chexbert).label(manifest.set_index("study_id")["report_text"])
+    elif args.csv:
         labels = load_label_csv(args.csv)
     else:
         print("WARNING: using the development keyword labeler; not valid for reported results.")
@@ -152,7 +156,9 @@ def main(argv=None):
     sub.add_parser("manifest").add_argument(
         "--source", choices=["hf", "openi"], default="hf",
         help="hf: Hugging Face mirror parquet (paths.hf_dir); openi: NLM XML + PNG (paths.raw_dir)")
-    sub.add_parser("label").add_argument("--csv", default=None, help="CheXbert/CheXpert output CSV")
+    lab = sub.add_parser("label")
+    lab.add_argument("--chexbert", default=None, help="path to chexbert.pth: run CheXbert here")
+    lab.add_argument("--csv", default=None, help="labels already produced by CheXbert/CheXpert")
     sub.add_parser("split")
     sub.add_parser("pairs")
     enc = sub.add_parser("encode")

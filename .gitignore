@@ -22,3 +22,6 @@ web/.next/
 Thumbs.db
 .vscode/
 .idea/
+
+# Third-party tools and weights (licensed separately)
+tools/
