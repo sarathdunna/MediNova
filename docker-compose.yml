@@ -1,0 +1,18 @@
+# Local demo: docker compose up --build
+# Public deployments must use synthetic examples only (proposal 8).
+services:
+  api:
+    build: { context: ., dockerfile: docker/api.Dockerfile }
+    ports: ["8000:8000"]
+    volumes:
+      - ./runs:/app/runs:ro
+      - ./data/interim/vocab.txt:/app/data/interim/vocab.txt:ro
+    environment:
+      MEDINOVA_CORS: http://localhost:3000
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      args: { NEXT_PUBLIC_API_URL: "http://localhost:8000" }
+    ports: ["3000:3000"]
+    depends_on: [api]

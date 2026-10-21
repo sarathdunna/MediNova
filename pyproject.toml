@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medinova"
+version = "0.1.0"
+description = "MediNova X: U-MERGE, uncertainty-aware image-report correspondence on a CPU (research use only)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "scikit-learn>=1.4",
+  "torch>=2.2",
+  "pillow>=10.0",
+  "pyyaml>=6.0",
+  "pyarrow>=15.0",
+]
+
+[project.optional-dependencies]
+encoders = [
+  "torchvision>=0.17",
+  "torchxrayvision>=1.2",
+  "transformers>=4.40",
+  "open_clip_torch>=2.24",
+  "sentence-transformers>=2.7",
+]
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "python-multipart>=0.0.9"]
+tracking = ["mlflow>=2.12"]
+dev = ["pytest>=8.0", "ruff>=0.4", "httpx>=0.27"]
+
+[project.scripts]
+medinova = "medinova.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = [
+  "B008",  # FastAPI's File()/Form() defaults are the intended idiom
+  "B905",  # zip() strictness: lengths are checked where they can differ
+  "E501",  # long lines are left to judgement
+]

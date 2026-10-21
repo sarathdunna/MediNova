@@ -1,0 +1,73 @@
+# MediNova X / U-MERGE default experiment config.
+# Section numbers refer to the revised research proposal.
+
+seed: 13
+
+paths:
+  raw_dir: data/raw/iu_xray          # Open-I XML reports + PNG images (not committed)
+  hf_dir: data/raw/hf_open_i         # Hugging Face mirror ykumards/open-i, CC BY-NC-ND 4.0
+  interim_dir: data/interim          # manifest, labels, splits, pairs
+  cache_dir: data/cache              # cached embeddings + quality features
+  runs_dir: runs                     # checkpoints, metrics, calibration
+
+# 5.3 four-way, study-disjoint splits
+splits:
+  train: 0.60
+  validation: 0.15
+  calibration: 0.10
+  test: 0.15
+
+# 5.2 finding-aware negatives
+negatives:
+  dedup_threshold: 0.95              # TF-IDF cosine for template groups
+  hard_fraction: 0.5                 # share of negatives drawn from the hard pool
+  hard_top_k: 5                      # hard pool = top-k lexically closest valid negatives
+
+# 6.1 frozen encoders (see medinova.features.encoders.ENCODERS)
+encoders:
+  image: txv_densenet121
+  text: cxr_bert
+
+# 6.3 corruptions; severity 0 = clean
+corruptions:
+  severities: [1, 2, 3]
+  image_seen: [blur, noise, contrast]
+  image_unseen: [jpeg, exposure]
+  text_seen: [typo, token_delete, truncate]
+  text_unseen: [shuffle]
+  p_clean: 0.4                       # probability a modality stays clean during training
+
+# 6.2 model
+model:
+  name: umerge                       # see medinova.models.build_model
+  d: 128
+  hidden: 256
+  dropout: 0.1
+  lambda_init: 1.0
+  use_gate: true
+  use_agreement: true
+  use_uncertainty: true
+  stop_grad_uncertainty: true        # u_m trained only by L_unc (set false + alpha 0 for draft-1 ablation)
+
+# 6.4 objective
+loss:
+  alpha: 1.0                         # L_unc
+  beta: 0.0                          # L_contrast (InfoNCE), ablation
+  gamma: 0.0                         # L_consist, ablation
+  contrast_temperature: 0.07
+
+train:
+  epochs: 40
+  batch_size: 256
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  patience: 6
+
+# 6.5 abstention
+abstention:
+  coverages: [1.0, 0.9, 0.8, 0.7]
+
+# 7 statistics
+evaluation:
+  ece_bins: 15
+  bootstrap: 1000
