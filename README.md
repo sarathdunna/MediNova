@@ -3,8 +3,6 @@
 Uncertainty-aware image–report correspondence for chest X-rays, built to run on a laptop CPU.
 Research and education only: not a medical device, not for clinical use.
 
-Proposal (revision 2): https://claude.ai/artifact/6498XZ933acQU98WzCfUEW
-
 ## What is here
 
 | Path | Proposal section | Contents |
